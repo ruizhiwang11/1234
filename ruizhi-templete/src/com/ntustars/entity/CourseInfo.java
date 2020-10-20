@@ -12,6 +12,13 @@ public class CourseInfo{
         this.index = index;
         compoments = new ArrayList<>();
     }
+    public CourseInfo(String index, boolean hasVencancies, int slot){
+        this.index = index;
+        this.hasVencancies = hasVencancies;
+        this.slot = slot;
+        compoments = new ArrayList<>();
+    }
+
 
     public String getIndex() {
         return index;
@@ -32,7 +39,6 @@ public class CourseInfo{
     public void setHasVencancies(boolean hasVencancies) {
         this.hasVencancies = hasVencancies;
     }
-
     public  void setSlot(int slot) {
         this.slot = slot;
     }
