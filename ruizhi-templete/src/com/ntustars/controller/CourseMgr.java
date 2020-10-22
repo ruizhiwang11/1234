@@ -4,9 +4,12 @@ import com.ntustars.entity.Course.CourseType;
 import com.ntustars.entity.CourseCompoment;
 import com.ntustars.entity.CourseInfo;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+import java.util.Map;
 
 
 public class CourseMgr {
@@ -118,7 +121,7 @@ public class CourseMgr {
         StringBuilder builder = new StringBuilder();
         builder.append(info.getIndex());
         builder.append(SEPARATOR);
-        builder.append(info.isHasVencancies());
+        builder.append(info.getHasVencancies());
         builder.append(SEPARATOR);
         builder.append(info.getSlot());
         builder.append(SEPARATOR);
@@ -162,7 +165,7 @@ public class CourseMgr {
                     StringBuilder builder = new StringBuilder();
                     builder.append(info.getIndex());
                     builder.append(SEPARATOR);
-                    builder.append(info.isHasVencancies());
+                    builder.append(info.getHasVencancies());
                     builder.append(SEPARATOR);
                     builder.append(info.getSlot());
                     builder.append(SEPARATOR);
@@ -185,7 +188,7 @@ public class CourseMgr {
         StringBuilder builder = new StringBuilder();
         builder.append(info.getIndex());
         builder.append(SEPARATOR);
-        builder.append(info.isHasVencancies());
+        builder.append(info.getHasVencancies());
         builder.append(SEPARATOR);
         builder.append(info.getSlot());
         builder.append(SEPARATOR);
@@ -199,6 +202,18 @@ public class CourseMgr {
         }
         stringArray.add(builder.toString());
         txtReaderWriter.writetxt("infocompo.txt",stringArray);
+    }
+
+    public String getCourseIDbyInfoIndex(String index) throws  IOException{
+        ArrayList stringArray = (ArrayList) txtReaderWriter.readtxt("courseinfo.txt");
+        for (int i = 0; i < stringArray.size(); i++){
+            String st = (String) stringArray.get(i);
+            if(st.contains(index)){
+                StringTokenizer star = new StringTokenizer(st, SEPARATOR);
+                return  (star.nextToken()).trim();
+            }
+        }
+        throw new RuntimeException("No such a index in the database: "+ index);
     }
 
     public Course readCourseFromDB(String CourseID) throws  IOException {

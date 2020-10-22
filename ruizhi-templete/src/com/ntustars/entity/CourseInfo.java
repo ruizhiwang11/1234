@@ -32,7 +32,7 @@ public class CourseInfo{
         return slot;
     }
 
-    public boolean isHasVencancies() {
+    public boolean getHasVencancies() {
         return hasVencancies;
     }
 

@@ -57,5 +57,6 @@ public class tester {
 
         mgr.updateCourse(haha);
         mgr.updateCourseIndexSlot("12345",13);
+        System.out.println(mgr.getCourseIDbyInfoIndex("12345"));
     }
 }

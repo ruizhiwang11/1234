@@ -14,7 +14,7 @@ public class Student implements Serializable {
     private String IDnumber;
     private String gender;
     private String nationality;
-    private List<Course> courseRegisted;
+    private List<String> courseIndexRegisted;
 
     /**
      * Entity of Student Object
@@ -104,12 +104,12 @@ public class Student implements Serializable {
         this.nationality = nationality;
     }
 
-    public List<Course> getCourseRegisted() {
-        return courseRegisted;
+    public List<String> getCourseRegisted() {
+        return courseIndexRegisted;
     }
 
-    public void setCourseRegisted(List<Course> courseRegisted) {
-        this.courseRegisted = courseRegisted;
+    public void setCourseRegisted(List<String> courseIndexRegisted) {
+        this.courseIndexRegisted = courseIndexRegisted;
     }
 
     public void printStudentInfo(){

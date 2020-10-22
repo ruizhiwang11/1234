@@ -52,11 +52,6 @@ public class Course {
     public List<CourseInfo> getInfos() {
         return infos;
     }
-
-    public void setInfos(List<CourseInfo> infos) {
-        this.infos = infos;
-    }
-
     public void addInfo(CourseInfo info){
         infos.add(info);
     }
