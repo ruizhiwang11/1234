@@ -1,15 +1,11 @@
 package com.ntustars.controller;
 
 import java.util.Scanner;
-import java.util.StringTokenizer;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,22 +15,17 @@ import java.io.IOException;
 
     
 public class AdminMgr {
-    private Date startDateTime;
-    private Date endDateTime;
-    private SimpleDateFormat formatter;
-    private AccessPeriod accessPeriod;
-    private HashMap<String,StudParticulars> students;
-    
+    private AccessPeriod accessPeriod; 
     private TxtReaderWriter txtReaderWriter;
     
 
 public AdminMgr(){
-        this.students =new HashMap<String,StudParticulars>();
+        //this.students =new HashMap<String,StudParticulars>();
         this.txtReaderWriter = new TxtReaderWriter();  
         this.accessPeriod = new AccessPeriod(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()));
     }
  
-    public void editStudAccessPeriod(){
+    public void editStudAccessPeriod() throws IOException{
         Date start = new Date();
     	Date end = new Date();
         Scanner sc = new Scanner(System.in);      
@@ -107,9 +98,7 @@ public AdminMgr(){
         return success;
     	
     }
-    
-    }
-    
+
     public void addStudInfo() throws IOException {
     	
     	Scanner sc = new Scanner(System.in);
@@ -171,7 +160,6 @@ public AdminMgr(){
         }
     }
 	
- 
     private boolean writeStudent(StudParticulars studentP) throws IOException
     {
     	boolean success = false;
