@@ -17,14 +17,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-
-public class AdminMgr {
-    private Date startDateTime;
-    private Date endDateTime;
-    private SimpleDateFormat formatter;
-    private HashMap<String,StudParticulars> students;
-    
-    private TxtReaderWriter txtReaderWriter;
     
 public class AdminMgr {
     private Date startDateTime;
