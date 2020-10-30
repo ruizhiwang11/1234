@@ -26,41 +26,34 @@ public class AdminMgr {
     
     private TxtReaderWriter txtReaderWriter;
     
-    public AdminMgr(){
-        this.formatter = new SimpleDateFormat("yyyy MM dd HH mm");
-        this.startDateTime = new Date(System.currentTimeMillis());
-        this.endDateTime = new Date(System.currentTimeMillis());
-        
+public class AdminMgr {
+    private Date startDateTime;
+    private Date endDateTime;
+    private SimpleDateFormat formatter;
+    private AccessPeriod accessPeriod;
+    private HashMap<String,StudParticulars> students;
+    
+    private TxtReaderWriter txtReaderWriter;
+    
+
+public AdminMgr(){
         this.students =new HashMap<String,StudParticulars>();
-        this.txtReaderWriter = new TxtReaderWriter();        
-    }
-
-    public void setStartAccessDate(Date startDateTime){
-        this.startDateTime = startDateTime;
-    }
-
-    public String getStartAccessDate(){
-        return this.formatter.format(this.startDateTime);
-    }
-
-    public void setEndAccessDate(Date endDateTime){
-        this.endDateTime = endDateTime;
-    }
-
-    public String getEndAccessDate(){
-        return this.formatter.format(this.endDateTime);
+        this.txtReaderWriter = new TxtReaderWriter();  
+        this.accessPeriod = new AccessPeriod(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()));
     }
  
     public void editStudAccessPeriod(){
+        Date start = new Date();
+    	Date end = new Date();
         Scanner sc = new Scanner(System.in);      
-        System.out.println("Current start accessing date and time:\n"+this.getStartAccessDate());
-        System.out.println("Current end accessing date and time:\n"+this.getEndAccessDate());
+        System.out.println("Current start accessing date and time:\n"+this.accessPeriod.getStartAccessDate());
+        System.out.println("Current end accessing date and time:\n"+this.accessPeriod.getEndAccessDate());
         while(true) {
         while(true){
             System.out.println("Enter start time in yyyy MM dd HH mm format:");
             String startDateTimeS = sc.nextLine();
             try{
-                startDateTime = this.formatter.parse(startDateTimeS);
+            	start = this.accessPeriod.formatter.parse(startDateTimeS);
             }catch(ParseException e){
             System.out.println("Invalid input. Please try again!");
             continue;
@@ -72,28 +65,25 @@ public class AdminMgr {
             System.out.println("Enter end time in yyyy MM dd HH mm format:");
             String endDateTimeS = sc.nextLine();
             try{
-                endDateTime = this.formatter.parse(endDateTimeS);
+            	end = this.accessPeriod.formatter.parse(endDateTimeS);
             }catch(ParseException e){
             System.out.println("Invalid input. Please try again!");
             continue;
         }
         break;      
 	}
-        
-        if(this.endDateTime.after(this.startDateTime)) {
+        if(end.after(start)) {
         	break;
-        }
-        
+        } 
         System.out.println("Please enter a valid period!");
-        
     }
         
-        this.setStartAccessDate(startDateTime);
-        this.setEndAccessDate(endDateTime);
+        this.accessPeriod.setStartAccessDate(start);
+        this.accessPeriod.setEndAccessDate(end);
         
         System.out.println("Student accessing period is updated successfully!");
-        System.out.println("Updated start accessing date and time:\n"+this.getStartAccessDate());
-        System.out.println("Updated end accessing date and time:\n"+this.getEndAccessDate());
+        System.out.println("Updated start accessing date and time:\n"+this.accessPeriod.getStartAccessDate());
+        System.out.println("Updated end accessing date and time:\n"+this.accessPeriod.getEndAccessDate());
     }
     
     public void addStudInfo() throws IOException {
