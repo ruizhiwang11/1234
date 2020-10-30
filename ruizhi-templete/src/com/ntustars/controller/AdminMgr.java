@@ -84,6 +84,38 @@ public AdminMgr(){
         System.out.println("Student accessing period is updated successfully!");
         System.out.println("Updated start accessing date and time:\n"+this.accessPeriod.getStartAccessDate());
         System.out.println("Updated end accessing date and time:\n"+this.accessPeriod.getEndAccessDate());
+	    
+	System.out.println(this.accessPeriod.getAccessPeriod());
+        this.writeAccessPeriod(accessPeriod);
+    }
+
+    
+    private boolean writeAccessPeriod(AccessPeriod accessPeriod) throws IOException {
+    	boolean success = false;
+    	if (accessPeriod.getStartAccessDate().isEmpty()||accessPeriod.getEndAccessDate().isEmpty()) {
+    		System.out.print("Insufficient access period input.");
+    		return success;
+    	}
+    	
+    	ArrayList accessStartEnd = (ArrayList)txtReaderWriter.readtxt("Student Access Period.txt");
+		
+    	CourseMgr cMgr = new CourseMgr();
+    	StringBuilder builder = new StringBuilder();
+    	builder.append("Start Access: ");
+        builder.append(accessPeriod.getStartAccessDate());
+        builder.append("\n");
+        builder.append("End Access: ");
+        builder.append(accessPeriod.getEndAccessDate());
+        builder.append("\n");
+
+        accessStartEnd.add(builder.toString());
+        txtReaderWriter.writetxt("Student Access Period.txt", accessStartEnd);
+
+        success = true;
+        return success;
+    	
+    }
+    
     }
     
     public void addStudInfo() throws IOException {
