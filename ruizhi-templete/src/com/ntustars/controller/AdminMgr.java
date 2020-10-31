@@ -28,62 +28,86 @@ public AdminMgr(){
         this.accessPeriod = new AccessPeriod(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()));
     }
  
-    public void editStudAccessPeriod() throws IOException{
-        Date start = new Date();
+public void updateStudAccessPeriod() throws IOException, ParseException{
+    	Date start = new Date();
     	Date end = new Date();
-        Scanner sc = new Scanner(System.in);      
-        System.out.println("Current start accessing date and time:\n"+this.accessPeriod.getStartAccessDate());
-        System.out.println("Current end accessing date and time:\n"+this.accessPeriod.getEndAccessDate());
-        while(true) {
-        while(true){
-            System.out.println("Enter start time in yyyy MM dd HH mm format:");
-            String startDateTimeS = sc.nextLine();
-            try{
-            	start = this.accessPeriod.formatter.parse(startDateTimeS);
-            }catch(ParseException e){
-            System.out.println("Invalid input. Please try again!");
-            continue;
+        Scanner sc = new Scanner(System.in);
+        
+        ArrayList<List> accessStartEnd = new ArrayList<List>();
+        accessStartEnd = this.readContentFromDB("Student Access Period.txt");
+        if (accessStartEnd.isEmpty()) {
+        	System.out.println("The student access period has not yet set.\n");
         }
-        break;
+        else {
+        	String startDD = accessStartEnd.get(0).toString().substring(accessStartEnd.get(0).toString().lastIndexOf(":")+1,accessStartEnd.get(0).toString().length() - 1);
+        	String endDD = accessStartEnd.get(1).toString().substring(accessStartEnd.get(1).toString().lastIndexOf(":")+1,accessStartEnd.get(1).toString().length() - 1);
+        	System.out.println("Current start accessing date and time:\n"+startDD);
+        	System.out.println("Current end accessing date and time:\n"+endDD);
+        	this.accessPeriod.setStartAccessDate(this.accessPeriod.formatter.parse(startDD));
+        	this.accessPeriod.setEndAccessDate(this.accessPeriod.formatter.parse(endDD));
+        }
+        
+        this.setStudAccessPeriod();
     }
 
-        while(true){
-            System.out.println("Enter end time in yyyy MM dd HH mm format:");
-            String endDateTimeS = sc.nextLine();
-            try{
-            	end = this.accessPeriod.formatter.parse(endDateTimeS);
-            }catch(ParseException e){
-            System.out.println("Invalid input. Please try again!");
-            continue;
+    public void setStudAccessPeriod() throws IOException {
+    	Date start = new Date();
+    	Date end = new Date();
+        Scanner sc = new Scanner(System.in);
+    	while(true) {
+            while(true){
+                System.out.println("Enter start time in yyyy MM dd HH mm format:");
+                String startDateTimeS = sc.nextLine();
+                try{
+                	start = this.accessPeriod.formatter.parse(startDateTimeS);
+                }catch(ParseException e){
+                System.out.println("Invalid input. Please try again!");
+                continue;
+            }
+            break;
         }
-        break;      
-	}
-        if(end.after(start)) {
-        	break;
-        } 
-        System.out.println("Please enter a valid period!");
-    }
-        
-        this.accessPeriod.setStartAccessDate(start);
-        this.accessPeriod.setEndAccessDate(end);
-        
-        System.out.println("Student accessing period is updated successfully!");
-        System.out.println("Updated start accessing date and time:\n"+this.accessPeriod.getStartAccessDate());
-        System.out.println("Updated end accessing date and time:\n"+this.accessPeriod.getEndAccessDate());
-	    
-	System.out.println(this.accessPeriod.getAccessPeriod());
-        this.writeAccessPeriod(accessPeriod);
-    }
 
+            while(true){
+                System.out.println("Enter end time in yyyy MM dd HH mm format:");
+                String endDateTimeS = sc.nextLine();
+                try{
+                	end = this.accessPeriod.formatter.parse(endDateTimeS);
+                }catch(ParseException e){
+                System.out.println("Invalid input. Please try again!");
+                continue;
+            }
+            break;      
+    	}
+            
+            if(end.after(start)) {
+            	break;
+            }
+            
+            System.out.println("Please enter a valid period!");
+            
+        }
+            
+            this.accessPeriod.setStartAccessDate(start);
+            this.accessPeriod.setEndAccessDate(end);
+            
+            System.out.println("Student accessing period is updated successfully!");
+            System.out.println("Updated start accessing date and time:\n"+this.accessPeriod.getStartAccessDate());
+            System.out.println("Updated end accessing date and time:\n"+this.accessPeriod.getEndAccessDate());
+            
+            System.out.println(this.accessPeriod.getAccessPeriod());
+            
+            this.writeAccessPeriodToDB(accessPeriod);
+    }
     
-    private boolean writeAccessPeriod(AccessPeriod accessPeriod) throws IOException {
+    
+    private boolean writeAccessPeriodToDB(AccessPeriod accessPeriod) throws IOException {
     	boolean success = false;
     	if (accessPeriod.getStartAccessDate().isEmpty()||accessPeriod.getEndAccessDate().isEmpty()) {
     		System.out.print("Insufficient access period input.");
     		return success;
     	}
     	
-    	ArrayList accessStartEnd = (ArrayList)txtReaderWriter.readtxt("Student Access Period.txt");
+    	ArrayList<String> accessStartEnd = new ArrayList<String>();
 		
     	CourseMgr cMgr = new CourseMgr();
     	StringBuilder builder = new StringBuilder();
