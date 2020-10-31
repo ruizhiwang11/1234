@@ -18,25 +18,56 @@ import java.io.IOException;
 
     
 public class AdminMgr {
-    private AccessPeriod accessPeriod; 
+    private AccessPeriod accessPeriod;
+    
     private TxtReaderWriter txtReaderWriter;
     
+    private int vacancy;
+    
+    private CourseMgr cMgr;
+    
+    private Course course;
+    
 
-public AdminMgr(){
-        //this.students =new HashMap<String,StudParticulars>();
+    public AdminMgr() throws IOException{
+
         this.txtReaderWriter = new TxtReaderWriter();  
+        
         this.accessPeriod = new AccessPeriod(new Date(System.currentTimeMillis()),new Date(System.currentTimeMillis()));
+    
+        this.vacancy = -1;
+        
+        this.cMgr = new CourseMgr();
+        
+    
     }
  
-public void updateStudAccessPeriod() throws IOException, ParseException{
-    	Date start = new Date();
-    	Date end = new Date();
-        Scanner sc = new Scanner(System.in);
+    
+    private ArrayList<List> readContentFromDB(String fileName) throws IOException{
+    	ArrayList<List> contentList = new ArrayList<List>();
+    	try (BufferedReader br = new BufferedReader(new FileReader(fileName)))
+        {
+            String student;
+
+            while ((student = br.readLine()) != null) {
+            	contentList.add(new ArrayList<String>(Arrays.asList(student.split(this.cMgr.SEPARATOR))));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } 
+    	
+        return contentList;
+    }
+
+    //Student Access Period
+    public boolean updateStudAccessPeriod(String startDateTimeS, String endDateTimeS) throws IOException, ParseException{
         
         ArrayList<List> accessStartEnd = new ArrayList<List>();
         accessStartEnd = this.readContentFromDB("Student Access Period.txt");
         if (accessStartEnd.isEmpty()) {
         	System.out.println("The student access period has not yet set.\n");
+        	//return success;
         }
         else {
         	String startDD = accessStartEnd.get(0).toString().substring(accessStartEnd.get(0).toString().lastIndexOf(":")+1,accessStartEnd.get(0).toString().length() - 1);
@@ -45,60 +76,53 @@ public void updateStudAccessPeriod() throws IOException, ParseException{
         	System.out.println("Current end accessing date and time:\n"+endDD);
         	this.accessPeriod.setStartAccessDate(this.accessPeriod.formatter.parse(startDD));
         	this.accessPeriod.setEndAccessDate(this.accessPeriod.formatter.parse(endDD));
+        	
         }
         
-        this.setStudAccessPeriod();
+        return this.setStudAccessPeriod(startDateTimeS,endDateTimeS);
     }
 
-    public void setStudAccessPeriod() throws IOException {
+    public boolean setStudAccessPeriod(String startDateTimeS, String endDateTimeS) throws IOException {
+    	
+    	boolean success = false;
+    	
     	Date start = new Date();
     	Date end = new Date();
-        Scanner sc = new Scanner(System.in);
-    	while(true) {
-            while(true){
-                System.out.println("Enter start time in yyyy MM dd HH mm format:");
-                String startDateTimeS = sc.nextLine();
-                try{
-                	start = this.accessPeriod.formatter.parse(startDateTimeS);
-                }catch(ParseException e){
-                System.out.println("Invalid input. Please try again!");
-                continue;
-            }
-            break;
+    	
+    	try{
+        	start = this.accessPeriod.formatter.parse(startDateTimeS);
+        }catch(ParseException e){
+        System.out.println("Invalid start time.");
+        return success;
         }
+    	
+    	try{
+        	end = this.accessPeriod.formatter.parse(endDateTimeS);
+        }catch(ParseException e){
+        System.out.println("Invalid end time.");
+        return success;
+        }
+            
+            if(end.before(start)) {
+            	System.out.println("Please enter a valid period!");
+            	return success;
+            }
 
-            while(true){
-                System.out.println("Enter end time in yyyy MM dd HH mm format:");
-                String endDateTimeS = sc.nextLine();
-                try{
-                	end = this.accessPeriod.formatter.parse(endDateTimeS);
-                }catch(ParseException e){
-                System.out.println("Invalid input. Please try again!");
-                continue;
-            }
-            break;      
-    	}
-            
-            if(end.after(start)) {
-            	break;
-            }
-            
-            System.out.println("Please enter a valid period!");
-            
-        }
-            
             this.accessPeriod.setStartAccessDate(start);
             this.accessPeriod.setEndAccessDate(end);
             
-            System.out.println("Student accessing period is updated successfully!");
-            System.out.println("Updated start accessing date and time:\n"+this.accessPeriod.getStartAccessDate());
-            System.out.println("Updated end accessing date and time:\n"+this.accessPeriod.getEndAccessDate());
+            System.out.println("Student accessing period is set successfully!");
+            System.out.println("Start accessing date and time:\n"+this.accessPeriod.getStartAccessDate());
+            System.out.println("End accessing date and time:\n"+this.accessPeriod.getEndAccessDate());
+            
+            //success = true;
             
             System.out.println(this.accessPeriod.getAccessPeriod());
             
             this.writeAccessPeriodToDB(accessPeriod);
+            
+            return true;
     }
-    
     
     private boolean writeAccessPeriodToDB(AccessPeriod accessPeriod) throws IOException {
     	boolean success = false;
@@ -109,7 +133,7 @@ public void updateStudAccessPeriod() throws IOException, ParseException{
     	
     	ArrayList<String> accessStartEnd = new ArrayList<String>();
 		
-    	CourseMgr cMgr = new CourseMgr();
+    	//CourseMgr cMgr = new CourseMgr();
     	StringBuilder builder = new StringBuilder();
     	builder.append("Start Access: ");
         builder.append(accessPeriod.getStartAccessDate());
@@ -125,69 +149,38 @@ public void updateStudAccessPeriod() throws IOException, ParseException{
         return success;
     	
     }
-
-    public void addStudInfo() throws IOException {
+ 
+    
+    //Check vacancy
+    public void checkVacancy(String indexForVacancy) throws IOException {
+    	this.readContentFromDB("infocompo.txt").stream().forEach((compoInfo)->{
+    		if(compoInfo.get(0).toString().equals(indexForVacancy)){
+    			this.vacancy = Integer.parseInt(compoInfo.get(2).toString());
+    		}
+    	});
     	
-    	Scanner sc = new Scanner(System.in);
-        
-        System.out.println("Add a new student:");
-        
-        System.out.println("Please enter the student's name:");
-    	String name = sc.nextLine();
-    	while(!name.matches("^[a-zA-Z]*$"))
-    	{
-    		System.out.println("Invalid input! Please enter again!");
-    		System.out.println("Please enter the student's name:");
-        	name = sc.nextLine();        	
+    	if(this.vacancy!=-1) {
+    		System.out.println("The available slot of index "+indexForVacancy+": "+this.vacancy);
+		}
+    	else {
+    		System.out.println(indexForVacancy+" is not in the database.");
     	}
-    	name = name.toUpperCase();
+    }
+ 
+    
+    //Add or update student particulars
+    public void addStudInfo(String name,String matricNum,char gender,String nationality) throws IOException{
     	
-    	System.out.println("Please input matric number of "+name+":");
-		String matricNum = sc.nextLine();
-		while(!matricNum.matches("[a-zA-Z]\\d{7}[a-zA-Z]"))
-    	{
-    		System.out.println("Invalid input! Please enter again!");
-    		System.out.println("Please input matric number of "+name+":");
-    		matricNum = sc.nextLine();        	
-    	}
-		matricNum = matricNum.toUpperCase();
-		//System.out.println(matricNum);
-		
-		System.out.println("Please enter gender of "+name+", M or F?");
-		char gender = sc.next().charAt(0);
-		//System.out.println(gender);
-		
-		while((Character.toUpperCase(gender)!='M')&&(Character.toUpperCase(gender)!='F'))
-    	{
-    		System.out.println("Invalid input! Please enter again!");
-    		System.out.println("Please enter gender of "+name+", M or F?");
-        	gender = sc.next().charAt(0); 
-
-    	}
-		sc.nextLine();
-		gender = Character.toUpperCase(gender);
-
-		System.out.println("Please enter the nationality of "+name+":");
-    	String nationality = sc.nextLine();
-    	while(!nationality.matches("^[a-zA-Z]*$"))
-    	{
-    		System.out.println("Invalid input! Please enter again!");
-    		System.out.println("Please enter the nationality of "+name+":");
-    		nationality = sc.nextLine();        	
-    	}
-    	
-    	nationality = nationality.toUpperCase();
-    	
-        StudParticulars studentP = new StudParticulars(name,matricNum,gender,nationality);
+        StudParticulars studentP = new StudParticulars(name.toUpperCase(),matricNum.toUpperCase(),Character.toUpperCase(gender),nationality.toUpperCase());
         
         System.out.println("Writing information to DB......");
-        boolean status = writeStudent(studentP);
+        boolean status = writeStudentToDB(studentP);
         if(status) {
-        	System.out.println("Added student inforamtion successfully.");
-        }
+        	System.out.println("Added student information successfully.");
+        }     
     }
-	
-    private boolean writeStudent(StudParticulars studentP) throws IOException
+
+    private boolean writeStudentToDB(StudParticulars studentP) throws IOException
     {
     	boolean success = false;
     	
@@ -195,22 +188,22 @@ public void updateStudAccessPeriod() throws IOException, ParseException{
     		System.out.print("Insufficient student information input.");
     	}
     	
-    	for(List student:readAllStudents()) {
+    	
+    	for(List student:readAllStudParticulars()) {
     		if(studentP.getName().equals(student.get(0))) {
     			System.out.println("The student has alreay registered!");
     			return success;}
     	}
     	
     	ArrayList studList = (ArrayList)txtReaderWriter.readtxt("Student Information.txt");
-    		
-    	CourseMgr cMgr = new CourseMgr();
+    	
     	StringBuilder builder = new StringBuilder();
         builder.append(studentP.getName());
-        builder.append(cMgr.SEPARATOR);
+        builder.append(this.cMgr.SEPARATOR);
         builder.append(studentP.getMatricNum());
-        builder.append(cMgr.SEPARATOR);
+        builder.append(this.cMgr.SEPARATOR);
         builder.append(String.valueOf(studentP.getGender()));
-        builder.append(cMgr.SEPARATOR);
+        builder.append(this.cMgr.SEPARATOR);
         builder.append(studentP.getNationality());
 
         studList.add(builder.toString());
@@ -220,35 +213,24 @@ public void updateStudAccessPeriod() throws IOException, ParseException{
         return success;
     }
         
-    public void updStudParticulars() throws IOException {
+    public void updStudParticulars(String name,int choice,String update) throws IOException {
     	
     	List newStudInfo = new ArrayList<String>();
     	String updStudent;
     	StudParticulars newStudent;
     	
-    	Scanner sc = new Scanner(System.in);
-    	
-    	System.out.println("\nWhich student's information would you like to update? Please enter the name:");
-        
-    	String name = sc.nextLine();
-    	while(!name.matches("^[a-zA-Z]*$"))
-    	{
-    		System.out.println("Invalid input! Please enter again!");
-    		System.out.println("Please enter the student's name:");
-        	name = sc.nextLine();        	
-    	}
-
     	name = name.toUpperCase();
     	System.out.println(name);
     	
+    	
     	int index = -1;
-    	for(List student:readAllStudents()) {
+    	for(List student:readAllStudParticulars()) {
     		if(name.equals(student.get(0))) {
-    			index = readAllStudents().indexOf(student);
+    			index = readAllStudParticulars().indexOf(student);
     		newStudInfo = student;
     		break;
     	}}
-	    
+
     	if(index == -1) {
     		System.out.println("The student does not exist!");
     		return;
@@ -256,91 +238,36 @@ public void updateStudAccessPeriod() throws IOException, ParseException{
     	else {
     		newStudent = new StudParticulars(newStudInfo.get(0).toString(),newStudInfo.get(1).toString(),newStudInfo.get(2).toString().charAt(0),newStudInfo.get(3).toString());
     		updStudent = name;
-    		System.out.println("Which information would you like to update?");
-    		System.out.println("1.Name   2.Matric Number   3.Gender   4.Nationality 5.Quit");
-    		int choice;
-    		do{
-    			choice = sc.nextInt();
         		switch(choice) {
         		case 1:
         		{
-        			sc.nextLine();
-        			System.out.println("Please enter the student's new name:");
-        	    	String newName = sc.nextLine();
-        	    	while(!newName.matches("^[a-zA-Z]*$"))
-        	    	{
-        	    		System.out.println("Invalid input! Please enter again!");
-        	    		System.out.println("Please enter the student's new name:");
-        	    		newName = sc.nextLine();        	
-        	    	}
-        	    	newName = newName.toUpperCase();
-        	    	newStudent.setName(newName);
-        	    	System.out.println(newName);
+        	    	update = update.toUpperCase();
+        	    	newStudent.setName(update);
+        	    	System.out.println(update);
         	    	break;
         		}
-        		case 2:
-        		{
-        			sc.nextLine();
-        			System.out.println("Please input new matric number:");
-        			String matricNum = sc.nextLine();
-        			while(!matricNum.matches("[a-zA-Z]\\d{7}[a-zA-Z]"))
-        	    	{
-        	    		System.out.println("Invalid input! Please enter again!");
-        	    		System.out.println("Please input new matric number:");
-        	    		matricNum = sc.nextLine();        	
-        	    	}
-        			matricNum = matricNum.toUpperCase();
-        			newStudent.setMatricNum(matricNum);
+        		case 2:{
+        			update = update.toUpperCase();
+        			newStudent.setMatricNum(update);
         			break;
         		}
         		case 3:
         		{
-        			System.out.println("Please enter new gender, M or F?");
-        			char gender = sc.next().charAt(0);
-        			
-        			while((Character.toUpperCase(gender)!='M')&&(Character.toUpperCase(gender)!='F'))
-        	    	{
-        	    		System.out.println("Invalid input! Please enter again!");
-        	    		System.out.println("Please enter new gender, M or F?");
-        	        	gender = sc.next().charAt(0); 
-     
-        	    	}
-        			sc.nextLine();
-        			gender = Character.toUpperCase(gender);
+        			char gender = Character.toUpperCase(update.charAt(0));
         			newStudent.setGender(gender);
         			break;
         		}
         		case 4:
         		{
-        			sc.nextLine();
-        			System.out.println("Please enter the new nationality :");
-        	    	String nationality = sc.nextLine();
-        	    	while(!nationality.matches("^[a-zA-Z]*$"))
-        	    	{
-        	    		System.out.println("Invalid input! Please enter again!");
-        	    		System.out.println("Please enter the new nationality: ");
-        	    		nationality = sc.nextLine();        	
-        	    	}
-        	    	
-        	    	nationality = nationality.toUpperCase();
-        	    	newStudent.setNationality(nationality);
+        	    	update = update.toUpperCase();
+        	    	newStudent.setNationality(update);
         	    	break;
         		}
-        		case 5:
-        		{
-        			System.out.println("Terminating...");
-        		}
-        		sc.nextLine();
-        		}
-        		
-        		System.out.println("Would you like to continue update?");
-        		System.out.println("1.Name   2.Matric Number   3.Gender   4.Nationality 5.Quit");
-    		}while(choice<5);
     		
     		System.out.println(name);
-
+    		//System.out.println(newStudInfo);
     		System.out.println("Updating information to DB......");
-    		boolean status = writeStudParUpdate(name,newStudent);
+    		boolean status = UpdateStudPartToDB(name,newStudent);
             if(status) {
             	System.out.println("Updated student inforamtion successfully.");
             }
@@ -349,25 +276,25 @@ public void updateStudAccessPeriod() throws IOException, ParseException{
     	
     }
     
-    private boolean writeStudParUpdate(String nameToUpdate,StudParticulars newStudentInfo) throws IOException
+    private boolean UpdateStudPartToDB(String nameToUpdate,StudParticulars newStudentInfo) throws IOException
     {
     	boolean success = false;
     	
     	File fileToUpdate = new File("Student Information.txt");
     	BufferedReader reader = null;
     	FileWriter writer = null;
-    	CourseMgr cMgr = new CourseMgr();
   
         String oldFile = "";
+        
         String oldLine = "";
         
         StringBuilder builder = new StringBuilder();
         builder.append(newStudentInfo.getName());
-        builder.append(cMgr.SEPARATOR);
+        builder.append(this.cMgr.SEPARATOR);
         builder.append(newStudentInfo.getMatricNum());
-        builder.append(cMgr.SEPARATOR);
+        builder.append(this.cMgr.SEPARATOR);
         builder.append(Character.toString(newStudentInfo.getGender()));
-        builder.append(cMgr.SEPARATOR);
+        builder.append(this.cMgr.SEPARATOR);
         builder.append(newStudentInfo.getNationality());
         
         String newLine = builder.toString();
@@ -411,52 +338,35 @@ public void updateStudAccessPeriod() throws IOException, ParseException{
             }
         }
     	
+        
     	return success;
+    	
+    }
+ 
+    private ArrayList<List> readAllStudParticulars() throws IOException{
+    	return readContentFromDB("Student Information.txt");
     }
 
-    private ArrayList<List> readAllStudents() throws IOException{
-    	CourseMgr cMgr = new CourseMgr();
-    	ArrayList<List> studentList = new ArrayList<List>();
-        try (BufferedReader br = new BufferedReader(new FileReader("Student Information.txt")))
-        {
-            String student;
-
-            while ((student = br.readLine()) != null) {
-            	studentList.add(new ArrayList<String>(Arrays.asList(student.split(cMgr.SEPARATOR))));
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } 
-
-        return studentList;
-    }
-    
     public void printAllStudent() throws IOException {
-    	readAllStudents().stream().forEach((student)->{
+    	readAllStudParticulars().stream().forEach((student)->{
     		System.out.print("Name:"+student.get(0)+"  ");
     		System.out.print("Matric Number:"+student.get(1)+"  ");
     		System.out.print("Gender:"+student.get(2)+"  ");
     		System.out.println("Nationality:"+student.get(3));
     	});
     }
+   
     
+    public void addCoursebyAdmin() throws IOException {
+    }
+    
+    public void updateCourse() {
+    }
+    
+    
+    //Print student registration information
     private ArrayList<List> readAllStudCouRegInfo() throws IOException{
-    	CourseMgr cMgr = new CourseMgr();
-    	ArrayList<List> stRegList = new ArrayList<List>();
-        try (BufferedReader br = new BufferedReader(new FileReader("Student Registration Information.txt")))
-        {
-            String student;
-
-            while ((student = br.readLine()) != null) {
-            	stRegList.add(new ArrayList<String>(Arrays.asList(student.split(cMgr.SEPARATOR))));
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } 
-
-        return stRegList;
+    	return readContentFromDB("Student Registration Information.txt");
     }
 
     public void printStudListByIndex() throws IOException {
