@@ -1,5 +1,8 @@
 package com.ntustars.controller;
 
+import com.ntustars.entity.AccessPeriod;
+import com.ntustars.entity.StudParticulars;
+
 import java.util.Scanner;
 import java.text.ParseException;
 import java.util.ArrayList;
