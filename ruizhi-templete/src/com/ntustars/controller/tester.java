@@ -10,13 +10,13 @@ import java.util.ArrayList;
 public class tester {
     public static void main(String[] args) throws IOException {
         CourseMgr mgr = new CourseMgr();
-        ArrayList <Course> arrayList = mgr.buildAllCourseFromDB();
+        /*ArrayList <Course> arrayList = mgr.buildAllCourseFromDB();
         for(Course course : arrayList){
             course.printCourse();
-        }
+        }*/
 
-        Course course = mgr.readCourseFromDB("CZ2006");
-        course.printCourse();
+        /*Course course = mgr.readCourseFromDB("CZ2006");
+        course.printCourse();*/
 
         if (mgr.updateCourseIndexSlot("12126", 28)){
             System.out.println("Successfully update course 12126 slot to 28");
@@ -36,6 +36,7 @@ public class tester {
         else{
             System.out.println("Fail to update");
         }
+        /*
         Course haha = new Course("CZ3003", Course.CourseType.WITHTUT, "SCSE");
         CourseInfo hahainfo = new CourseInfo("12345", true, 80);
         hahainfo.addCompoment(new CourseCompoment("LEC", "FRI", "1200-1300"));
@@ -57,6 +58,6 @@ public class tester {
 
         mgr.updateCourse(haha);
         mgr.updateCourseIndexSlot("12345",13);
-        System.out.println(mgr.getCourseIDbyInfoIndex("12345"));
+        System.out.println(mgr.getCourseIDbyInfoIndex("12345"));*/
     }
 }

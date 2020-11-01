@@ -318,7 +318,7 @@ public class CourseMgr {
         success = true;
         return success;
     }
-    public boolean updateCourse(Course course) throws  IOException{
+    public boolean updateCourse(Course course) throws IOException{
         boolean success = false;
         if(course.getCourseID().isEmpty() || course.getSchool().isEmpty()||course.getInfos().isEmpty()){
             System.out.println("Course is empty");
